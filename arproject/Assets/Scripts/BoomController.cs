@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BoomController : MonoBehaviour
@@ -21,7 +19,7 @@ public class BoomController : MonoBehaviour
 
     public void OnDamageAnimationEnd()
     {
-        anim.SetTrigger("attak01");
+        anim.SetTrigger("attack01");
     }
 
 

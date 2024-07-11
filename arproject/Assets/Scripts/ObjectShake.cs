@@ -1,19 +1,23 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ObjectShake : MonoBehaviour
 {
     public Button btn;
+    public float typingSpeed = 3;
+    Text text1;
+    string fullText;
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        GetComponent<Text>().enabled = false;
+        text1 = gameObject.GetComponent<Text>();
+        fullText = text1.text;
+        text1.text = "";
+
         btn.GetComponent<Button>().enabled = false;
-        Invoke("Shake", 3f);
-}
+        Invoke("ShowBtn", 3);
+    }
 
     // Update is called once per frame
     void Update()
@@ -21,10 +25,10 @@ public class ObjectShake : MonoBehaviour
         
     }
 
-    public void Shake()
+    void ShowBtn()
     {
-        transform.DOShakeRotation(3);
-        GetComponent<Text>().enabled = true;
         btn.GetComponent<Button>().enabled = true;
+        text1.enabled = true;
+        text1.DOText(fullText, typingSpeed);
     }
 }

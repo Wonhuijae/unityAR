@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
@@ -11,10 +10,28 @@ public class GameManager : MonoBehaviour
     public GameObject Spawn;
     public GameObject pauseCanvas;
 
+    public GameObject[] hearts;
     public AudioClip explo;
     public AudioSource audioSource;
 
+    public Text ScoreText;
+    public Text MaxText;
+
+    public Text timeTxt;
+
     private bool _WaitForExit = false;
+    private bool _Running = true;
+
+    int score;
+    int maxScore;
+    int hp;
+
+    int m;
+    float s;
+
+    float gameTime;
+    float levelCooldown = 0f;
+    float audioLength;
 
     // Start is called before the first frame update
     void Awake()
@@ -29,11 +46,18 @@ public class GameManager : MonoBehaviour
         }
 
         GameReset();
+        audioLength = explo.length;
+        
+    }
+
+    private void OnEnable()
+    {
+        GameReset();
     }
 
     // Update is called once per frame
     void Update()
-    {
+    {   
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             if (_WaitForExit == false)
@@ -45,6 +69,25 @@ public class GameManager : MonoBehaviour
             {
                 Application.Quit();
             }
+        }
+
+        if(hp <= 0)
+        {
+            _Running = false;
+            Invoke("GameOver", 2);
+        }
+        if (!_Running) return;
+
+        gameTime += Time.deltaTime;
+        m = (int)gameTime / 60;
+        s = gameTime % 60;
+        timeTxt.text = $"{m} : {s.ToString("0")}";
+
+        levelCooldown += Time.deltaTime;
+        if (levelCooldown == 30f)
+        {
+            Spawn.GetComponent<Spawn>().SetGameLevel();
+            levelCooldown = 0f;
         }
     }
 
@@ -73,23 +116,21 @@ public class GameManager : MonoBehaviour
 
     public void Explosion()
     {
-        audioSource.PlayOneShot(explo);
+        if (_Running) audioSource.PlayOneShot(explo);
+        
+        StartCoroutine(WaitForExplosion());
+        hp--;
+        hearts[hp].SetActive(true);
     }
+
+    IEnumerator WaitForExplosion()
+    {
+        yield return new WaitForSecondsRealtime(audioLength);
+    }
+
     public void StartGame()
     {
-        SceneManager.LoadScene("MainScene");
-    }
-
-    public void PauseGame()
-    {
-        Time.timeScale = 0f;
-        pauseCanvas.SetActive(true);
-    }
-
-    public void PlayGame()
-    {
-        Time.timeScale = 1f;
-        pauseCanvas.SetActive(false);
+        if (!_Running)  SceneManager.LoadScene("MainScene");
     }
 
     public void QuitGame()
@@ -97,17 +138,58 @@ public class GameManager : MonoBehaviour
         Application.Quit();
     }
 
-    public void GameOver(int CurScore)
+    public void PauseGame()
     {
-        if (CurScore > PlayerPrefs.GetInt("MaxScore")) PlayerPrefs.SetInt("MaxScore", CurScore);
+        if (_Running)
+        {
+            Time.timeScale = 0f;
+            pauseCanvas.SetActive(true);
+        }
+    }
+
+    public void PlayGame()
+    {
+        if (_Running)
+        {
+            Time.timeScale = 1f;
+            pauseCanvas.SetActive(false);
+        }
+    }
+
+    public void GameOver()
+    {
+        if (score > PlayerPrefs.GetInt("MaxScore")) PlayerPrefs.SetInt("MaxScore", score);
         SceneManager.LoadScene("EndScene");
     }
     public void GameReset()
     {
-        SceneManager.LoadScene("MainScene");
         Time.timeScale = 1f;
-        ShootManager.GetComponent<Shoot>().Reset();
-        Spawn.GetComponent<Spawn>().Reset();
-        
+
+        score = 0;
+        gameTime = 0;
+
+        if (!PlayerPrefs.HasKey("MaxScore")) maxScore = 0;
+        else maxScore = PlayerPrefs.GetInt("MaxScore");
+
+        ScoreText.text = $"{score}";
+        MaxText.text = $"{maxScore}";
+        gameTime = 0f;
+
+        foreach (var h in hearts)
+        {
+            h.SetActive(false);
+        }
+
+        hp = hearts.Length;
+    }
+
+    public void AddPoint(int point)
+    {
+        score++;
+        ScoreText.text = $"{score}";
+        if (score >= maxScore)
+        {
+            MaxText.text = $"{score}";
+        }
     }
 }

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
@@ -23,6 +21,8 @@ public class FadeIn : MonoBehaviour
         if(GetComponent<Image>().color.a == targetFadeValue)
         {
             OverText.GetComponent<TextTyping>().DisplayText();
+            InfiniteLoopDetector.Run();
+
         }
     }
 }
