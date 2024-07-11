@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public GameObject ShootManager;
     public GameObject Spawn;
     public GameObject pauseCanvas;
+    public GameObject gun;
 
     public GameObject[] hearts;
     public AudioClip explo;
@@ -30,7 +31,6 @@ public class GameManager : MonoBehaviour
     float s;
 
     float gameTime;
-    float levelCooldown = 0f;
     float audioLength;
 
     // Start is called before the first frame update
@@ -83,12 +83,9 @@ public class GameManager : MonoBehaviour
         s = gameTime % 60;
         timeTxt.text = $"{m} : {s.ToString("0")}";
 
-        levelCooldown += Time.deltaTime;
-        if (levelCooldown == 30f)
-        {
-            Spawn.GetComponent<Spawn>().SetGameLevel();
-            levelCooldown = 0f;
-        }
+
+        Spawn.GetComponent<Spawn>().SetGameLevel((int)gameTime / 30 + 1);
+
     }
 
     private void showAndroidToastMessage(string message)
@@ -116,16 +113,21 @@ public class GameManager : MonoBehaviour
 
     public void Explosion()
     {
-        if (_Running) audioSource.PlayOneShot(explo);
-        
-        StartCoroutine(WaitForExplosion());
-        hp--;
-        hearts[hp].SetActive(true);
+        if (!_Running) return;
+
+        audioSource.PlayOneShot(explo);
+        StartCoroutine(WaitFoeExplo());
     }
 
-    IEnumerator WaitForExplosion()
+    IEnumerator WaitFoeExplo()
     {
         yield return new WaitForSecondsRealtime(audioLength);
+    }
+
+    public void PlayerHurt()
+    {
+        hp--;
+        hearts[hp].SetActive(true);
     }
 
     public void StartGame()
@@ -146,7 +148,6 @@ public class GameManager : MonoBehaviour
             pauseCanvas.SetActive(true);
         }
     }
-
     public void PlayGame()
     {
         if (_Running)
@@ -155,7 +156,6 @@ public class GameManager : MonoBehaviour
             pauseCanvas.SetActive(false);
         }
     }
-
     public void GameOver()
     {
         if (score > PlayerPrefs.GetInt("MaxScore")) PlayerPrefs.SetInt("MaxScore", score);

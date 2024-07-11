@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Spawn : MonoBehaviour
 {
@@ -7,10 +8,12 @@ public class Spawn : MonoBehaviour
     public GameObject BoomPrefab;
     public AudioClip spawnClip;
     public GameObject camera;
+    public Text levelText;
+    public GameObject levelPopup;
 
     AudioSource audio;
 
-    int level = 0;
+    int level = 1;
     int spawnCnt;
 
     // Start is called before the first frame update
@@ -42,6 +45,7 @@ public class Spawn : MonoBehaviour
                 int iPrefab = Random.Range(0, prefab.Length);
                 int isBoom = Random.Range(0, 10);
                 float xpos = Random.Range(-10f, 10f);
+                float ypos = Random.Range(-2f, 2f);
                 float zpos = Random.Range(-10f, 10f);
 
                 if (-5 < xpos || xpos <= 0)
@@ -66,14 +70,15 @@ public class Spawn : MonoBehaviour
 
                 if (isBoom < 7)
                 {
-                    obj = Instantiate(prefab[iPrefab], new Vector3(xpos, -2f, zpos), Quaternion.identity);
+                    obj = Instantiate(prefab[iPrefab], new Vector3(xpos, ypos, zpos), Quaternion.identity);
                     obj.transform.LookAt(camera.transform);
                     Destroy(obj, 5f);
                 }
                 else
                 {
-                    obj = Instantiate(BoomPrefab, new Vector3(xpos, -2f , zpos), Quaternion.identity);
+                    obj = Instantiate(BoomPrefab, new Vector3(xpos, ypos , zpos), Quaternion.identity);
                     obj.transform.LookAt(camera.transform);
+                    Destroy(obj, 10f);
                 }
 
                 obj.GetComponent<Enemy>().Move(camera.transform.position);
@@ -83,9 +88,12 @@ public class Spawn : MonoBehaviour
         }
     }
 
-    public void SetGameLevel()
+    public void SetGameLevel(int _level)
     {
-        level++;
-        spawnCnt += level;
+        if (level == _level) return;
+        level = _level;
+        spawnCnt = level + 2;
+        levelPopup.SetActive(true);
+        levelText.text = $"Lv. {level}";
     }
 }

@@ -46,7 +46,7 @@ public class Shoot : MonoBehaviour
                 rb.velocity = Vector3.zero;
                 boom.transform.position = Offset.transform.position;
                 boom.transform.rotation.SetLookRotation(camera.transform.position);
-                boom.transform.GetComponent<Animator>().SetTrigger("damage");;
+                boom.transform.GetComponent<Animator>().SetTrigger("damage");
             }
         }
         //gun.GetComponent<Animator>().SetBool("isShooted", false);

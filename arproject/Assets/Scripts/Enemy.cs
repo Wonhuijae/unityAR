@@ -6,6 +6,7 @@ public class Enemy : MonoBehaviour
     float speed;
     float distance;
     float close;
+    bool isClose = false;
 
     AudioSource audioSource;
     public AudioClip clip;
@@ -13,8 +14,8 @@ public class Enemy : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        speed = Random.Range(0.5f, 1f);
-        close = Random.Range(0, speed);
+        speed = Random.Range(1f, 1.5f);
+        close = Random.Range(speed, speed * 2);
     }
 
     // Update is called once per frame
@@ -26,8 +27,10 @@ public class Enemy : MonoBehaviour
         }
 
         distance = Vector3.Distance(target, transform.position);
-        if (distance == close * 3)
+        if (distance <= close && isClose == false)
         {
+            isClose = true;
+            isClose = true;
             CloseToTarget();
         }
     }
@@ -42,15 +45,11 @@ public class Enemy : MonoBehaviour
         if (gameObject.tag == "Enemy") return;
         else
         {
+            Animator anim = GetComponent<Animator>();
             speed = 0;
             audioSource = GetComponent<AudioSource>();
             audioSource.PlayOneShot(clip);
-            Invoke("Explosion", 3);
+            anim.SetTrigger("attack01");
         }
-    }
-
-    void Explosion()
-    {
-        GameManager.instance.GetComponent<GameManager>().Explosion();
     }
 }
