@@ -42,11 +42,14 @@ public class Shoot : MonoBehaviour
             {
                 Rigidbody rb = hit.transform.GetComponent<Rigidbody>();
                 boom = hit.transform.gameObject;
-
-                rb.velocity = Vector3.zero;
-                boom.transform.position = Offset.transform.position;
-                boom.transform.rotation.SetLookRotation(camera.transform.position);
-                boom.transform.GetComponent<Animator>().SetTrigger("damage");
+                if (hit.transform.gameObject.GetComponent<BoomController>().IsShooted() == false)
+                {
+                    hit.transform.gameObject.GetComponent<BoomController>().SetShooted();
+                    rb.velocity = Vector3.zero;
+                    boom.transform.position = Offset.transform.position;
+                    boom.transform.rotation.SetLookRotation(camera.transform.position);
+                    boom.transform.GetComponent<Animator>().SetTrigger("damage");
+                }
             }
         }
         //gun.GetComponent<Animator>().SetBool("isShooted", false);

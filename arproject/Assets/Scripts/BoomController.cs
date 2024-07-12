@@ -4,7 +4,8 @@ public class BoomController : MonoBehaviour
 {
     private Animator anim;
     public GameObject playerGun;
-    
+    bool isShooted = false;
+
 
     // Start is called before the first frame update
     void Start()
@@ -35,5 +36,15 @@ public class BoomController : MonoBehaviour
         {
             GameManager.instance.GetComponent<GameManager>().PlayerHurt();
         }
+    }
+
+    public void SetShooted()
+    {
+        isShooted = true;
+    }
+
+    public bool IsShooted()
+    {
+        return isShooted;
     }
 }
